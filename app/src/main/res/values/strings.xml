@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">facebook_cleartext</string>
+    <string name="facebook_app_id" translatable="false">268433919926057</string>
+</resources>
