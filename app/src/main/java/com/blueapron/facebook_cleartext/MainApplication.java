@@ -4,6 +4,10 @@ import android.app.Application;
 import android.os.Build;
 import android.os.StrictMode;
 
+import com.facebook.FacebookSdk;
+import com.facebook.LoggingBehavior;
+import com.facebook.appevents.AppEventsLogger;
+
 /**
  * Main application class for this app.
  */
@@ -13,22 +17,23 @@ public class MainApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
-        // This is basically "detectAll - detectActivityLeaks". The Activity testing framework
-        // has an issue that can incorrectly hold references to our activities during a test -
-        // which ends up triggering the leak detection. This results in highly flaky tests, which
-        // is worse than the problem we're trying to solve. So to work around this issue, we only
-        // enable this check in alpha builds, as opposed to the debug builds we run the tests
-        // against on the build server.
+        // Turn on extremely verbose debugging.
+        FacebookSdk.setIsDebugEnabled(true);
+        FacebookSdk.addLoggingBehavior(LoggingBehavior.REQUESTS);
+        FacebookSdk.addLoggingBehavior(LoggingBehavior.GRAPH_API_DEBUG_INFO);
+        FacebookSdk.addLoggingBehavior(LoggingBehavior.DEVELOPER_ERRORS);
+        FacebookSdk.addLoggingBehavior(LoggingBehavior.APP_EVENTS);
+        FacebookSdk.addLoggingBehavior(LoggingBehavior.INCLUDE_RAW_RESPONSES);
+
+        String fbAppId = getString(R.string.facebook_app_id);
+        FacebookSdk.setApplicationId(fbAppId);
+        // We must manually call sdkInitialize() because we have a dynamic application ID.
+        FacebookSdk.sdkInitialize(getApplicationContext());
+        AppEventsLogger.activateApp(this, fbAppId);
+
         StrictMode.VmPolicy.Builder vmBuilder = new StrictMode.VmPolicy.Builder()
                 .detectFileUriExposure()
-                // Commenting out because the first load of the WebView leaks a resource.
-                // Related ticket: https://code.google.com/p/android/issues/detail?id=226751
-                // This also causes bad behavior with Firebase. Disabling until this is fixed.
-                //.detectLeakedClosableObjects()
                 .detectLeakedRegistrationObjects()
-                // Disabled until Firebase fixes this:
-                // https://code.google.com/p/android/issues/detail?id=229676
-                //.detectLeakedSqlLiteObjects()
                 .penaltyLog()
                 .penaltyDeath();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
