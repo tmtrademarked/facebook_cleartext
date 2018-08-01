@@ -9,5 +9,5 @@ To reproduce the problem, it's easiest to see this on Android P (API 28). I can'
 
 When the app runs, the first breakpoint in MainApplication will be hit. When the second breakpoint is hit, StrictMode will be enabled - and the call will crash.
 
-In real practice, I believe this happens if flushes are triggered at key moments. I suspect this happens for us because we have a splash screen that invokes after a delay.
+In real practice, I believe this happens if flushes are triggered at key moments. I suspect this happens for us because we have a splash screen that invokes after a delay. But getting the timing exactly right without a debugger is tricky.
 
